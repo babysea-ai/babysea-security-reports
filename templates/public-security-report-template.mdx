@@ -1,0 +1,789 @@
+---
+title: "BabySea Public Security Assessment Report"
+description: "Public sanitized template for BabySea authorized security assessments. Replace placeholders before publishing."
+date: "YYYY-MM-DD"
+status: "Public sanitized report"
+category: "Security"
+tags:
+  - Security
+  - Red Team
+  - Penetration Testing
+  - DevSecOps
+  - SOC 2
+  - ISO 27001
+---
+
+{/*
+====================================================================
+PUBLIC SECURITY REPORT - TEMPLATE
+====================================================================
+
+Purpose
+-------
+This template produces a SOC 2 / ISO 27001-style public security
+report that is safe to publish to customers, partners, and security
+reviewers. It is intentionally sanitized: it summarizes outcomes,
+controls, and invariants; never reusable exploit material.
+
+Authoring rules (read before publishing)
+----------------------------------------
+1. NEVER include any of the following in the public version:
+   - Live or historical API keys, tokens, secrets, signing keys
+   - Account IDs, user IDs, internal UUIDs, generation IDs
+   - Internal hostnames, region-specific URLs, IPs, or DSNs
+   - Raw request/response bodies, stack traces, or DB rows
+   - Reusable exploit scripts, payloads, or PoC commands
+   - Internal error codes that map 1:1 to internal logic
+   - File paths, env var names, or infra topology specifics
+   - Provider names tied to internal routing decisions
+   - Vendor/region pricing, credit math, or SKU details
+2. Always describe defenses and outcomes in CATEGORY language,
+   not in step-by-step reproducible attack language.
+3. Numbers must be auditable internally but generic externally.
+   Round, bucket, or summarize where useful. Never invent numbers.
+4. This is NOT an audit attestation. Do not imply certification.
+   Do not claim "perfect security" or "unhackable".
+5. Get internal sign-off (security owner + legal/comms) before
+   publishing. Replace ALL <PLACEHOLDER> tokens.
+====================================================================
+*/}
+
+# BabySea Public Security Assessment Report
+
+> **Report type:** Public sanitized security assessment summary
+> **Assessment date:** <ASSESSMENT_DATE>
+> **Assessment mode:** <ASSESSMENT_MODE: e.g. "Authorized white-box red-team assessment">
+> **Systems tested:** BabySea production API and execution layer
+> **Regions tested:** <REGIONS: e.g. "US, EU, APAC">
+> **Total attack attempts:** <TOTAL_ATTEMPTS>
+> **Public classification:** Sanitized for publication
+
+This document is a public, sanitized version of an authorized
+security assessment performed against BabySea's production
+execution layer. It is written for customers, partners, developers,
+and security reviewers who want to understand how BabySea validated
+its platform under adversarial conditions.
+
+Operational identifiers in this report are anonymized. The original
+internal assessment used live regional test accounts and production
+endpoints, but API keys, account IDs, generation IDs, internal log
+rows, and reusable exploit payloads are intentionally not published.
+
+This public report is **not** a certification, audit attestation, or
+guarantee of perfect security. It summarizes one authorized
+assessment within a defined scope and time window.
+
+---
+
+## Executive summary
+
+BabySea executed an authorized security assessment against its
+production API and execution layer.
+
+The test covered <TOTAL_ATTEMPTS> attack attempts across
+<REGION_COUNT> isolated regions: <REGIONS>. Each region received
+the same methodology with <ATTEMPTS_PER_REGION> attempts per region,
+allowing BabySea to compare behavior across regional infrastructure,
+application validation, authentication, rate limiting, database
+isolation, execution-state handling, and credit-ledger integrity.
+
+The assessment focused on six categories:
+
+1. Authentication and authorization
+2. Financial and state logic
+3. Input validation and injection
+4. Edge and protocol abuse
+5. SSRF and file access
+6. Webhook and infrastructure abuse
+
+### Public result
+
+| Metric | Result |
+| --- | ---: |
+| Total attack attempts | <TOTAL_ATTEMPTS> |
+| Regions tested | <REGION_COUNT> |
+| Attack categories | 6 |
+| Directly blocked attempts | <BLOCKED_COUNT> |
+| Expected-safe behavior | <PASSED_COUNT> |
+| Unexpected results | <UNEXPECTED_COUNT> |
+| Runtime errors | <ERROR_COUNT> |
+| Critical findings | <CRITICAL_COUNT> |
+| High findings | <HIGH_COUNT> |
+| Medium findings | <MEDIUM_COUNT> |
+| Low findings | <LOW_COUNT> |
+
+<EXECUTIVE_SUMMARY_NARRATIVE>
+
+The most important validation was not only that malicious requests
+were rejected. The most important validation was that BabySea's
+execution and billing invariants held under adversarial pressure:
+
+- every successful test generation produced a matching
+  reserve ➜ charge pair
+- no orphaned reservations were observed
+- no double charges were observed
+- no invalid refunds were observed
+- account, API key, and generation ownership remained correctly
+  linked
+
+---
+
+## Why this assessment was necessary
+
+BabySea is an execution control plane for generative media.
+
+The platform is responsible for more than routing requests to model
+providers. It coordinates API keys, async image and video workloads,
+provider failover, credit reservation, credit settlement, webhooks,
+file delivery, usage logs, health checks, and regional execution.
+
+In this type of system, the most dangerous bugs are usually not
+cosmetic UI failures. They are **state failures**.
+
+A serious bug could become:
+
+- a credit leak
+- a duplicate charge
+- a stuck reservation
+- a refund race
+- cross-account generation access
+- forged provider webhook completion
+- SSRF through user-supplied media URLs
+- broken regional isolation
+- provider abuse through malformed execution requests
+- corrupted usage or billing records
+
+The assessment therefore focused on execution-layer invariants, not
+only endpoint availability.
+
+The key question was:
+
+> Can hostile traffic corrupt BabySea's identity, tenancy, execution
+> state, regional isolation, webhook state, file access, or credit
+> ledger?
+
+---
+
+## Assessment model
+
+This was a <ASSESSMENT_MODE> assessment.
+
+<ASSESSMENT_MODEL_NARRATIVE: e.g. describe whether the tester had
+prior knowledge of the system, what they reviewed, and the goal.
+Do NOT name internal tools, file paths, or schema details.>
+
+### Scope design
+
+| Scope area | Public description |
+| --- | --- |
+| Regions | <REGIONS> |
+| Methodology | Identical methodology in every region |
+| Accounts | Dedicated regional test accounts |
+| API keys | Dedicated regional test API keys |
+| Workloads | Real API requests and real generation lifecycle paths |
+| Data plane | Production execution layer |
+| Result analysis | API responses, application behavior, credit-ledger integrity, asset records, and regional consistency |
+
+### Methodology constraints
+
+The test followed these public constraints:
+
+- Exactly <ATTEMPTS_PER_REGION> attack attempts were executed per region.
+- The same category structure was used in every region.
+- Attack attempts targeted real API surfaces, not only synthetic mocks.
+- Financial and execution-state tests used real generation lifecycle paths.
+- Public reporting excludes reusable exploit scripts and sensitive operational identifiers.
+
+---
+
+## High-level architecture under test
+
+The public assessment covered BabySea's external execution layer and
+the state systems behind it.
+
+```text
+Client request
+  -> edge / WAF / API shield
+  -> regional API gateway
+  -> application authentication and validation
+  -> rate limiting and quota enforcement
+  -> credit reservation
+  -> generation orchestration and provider failover
+  -> async execution and provider callbacks
+  -> credit settlement
+  -> file delivery
+  -> webhook and usage logging
+```
+
+The test also validated region-specific behavior across <REGIONS>.
+The purpose was to ensure that a security property in one region did
+not silently fail in another.
+
+---
+
+## Attack category summary
+
+| Category | Focus | Attempts | Public result |
+| --- | --- | ---: | --- |
+| CAT1 | Authentication and authorization | <CAT1_COUNT> | <CAT1_PUBLIC_RESULT> |
+| CAT2 | Financial and state logic | <CAT2_COUNT> | <CAT2_PUBLIC_RESULT> |
+| CAT3 | Input validation and injection | <CAT3_COUNT> | <CAT3_PUBLIC_RESULT> |
+| CAT4 | Edge and protocol abuse | <CAT4_COUNT> | <CAT4_PUBLIC_RESULT> |
+| CAT5 | SSRF and file access | <CAT5_COUNT> | <CAT5_PUBLIC_RESULT> |
+| CAT6 | Webhook and infrastructure abuse | <CAT6_COUNT> | <CAT6_PUBLIC_RESULT> |
+| **Total** |  | **<TOTAL_ATTEMPTS>** | **<OVERALL_PUBLIC_RESULT>** |
+
+---
+
+## Per-region summary
+
+Each region received the same <ATTEMPTS_PER_REGION>-attempt methodology.
+
+| Region | Total attempts | Directly blocked | Expected-safe behavior | Unexpected | Errors |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| <REGION_1> | <R1_TOTAL> | <R1_BLOCKED> | <R1_PASSED> | <R1_UNEXPECTED> | <R1_ERRORS> |
+| <REGION_2> | <R2_TOTAL> | <R2_BLOCKED> | <R2_PASSED> | <R2_UNEXPECTED> | <R2_ERRORS> |
+| <REGION_3> | <R3_TOTAL> | <R3_BLOCKED> | <R3_PASSED> | <R3_UNEXPECTED> | <R3_ERRORS> |
+| **Total** | **<TOTAL_ATTEMPTS>** | **<BLOCKED_COUNT>** | **<PASSED_COUNT>** | **<UNEXPECTED_COUNT>** | **<ERROR_COUNT>** |
+
+<PER_REGION_NARRATIVE: describe consistency in plain language. Do
+NOT call out region-specific timing in a way that maps to internal
+rate-limit windows or specific provider behavior.>
+
+---
+
+## Blocker distribution
+
+Attack attempts were handled by multiple layers.
+
+| Defense layer | Public description | Count |
+| --- | --- | ---: |
+| Application authentication | Missing, malformed, invalid, or region-mismatched credentials rejected | <APP_AUTH_COUNT> |
+| Application validation | Invalid payloads, schema violations, or unsafe request shapes rejected | <APP_VALIDATION_COUNT> |
+| Method restrictions | Unsupported route/method combinations rejected | <METHOD_COUNT> |
+| Edge / client / protocol rejection | Oversized, malformed, or protocol-invalid requests rejected before unsafe processing | <EDGE_COUNT> |
+| **Total directly blocked** |  | **<BLOCKED_COUNT>** |
+
+This distribution matters. The result did not depend on a single
+defensive layer. Authentication, validation, route handling, runtime
+behavior, and database-level invariants all contributed.
+
+---
+
+## CAT1: Authentication and authorization
+
+### Objective
+
+Validate that BabySea derives identity and account ownership only
+from verified credentials, not from user-controlled headers, route
+parameters, region confusion, or malformed token material.
+
+### Public attack themes
+
+CAT1 tested:
+
+- missing authentication
+- malformed credential values
+- empty tokens
+- invalid token formats
+- token injection attempts
+- cross-region token replay
+- random keys with valid-looking prefixes
+- credentials supplied through unsafe channels
+- BOLA / IDOR attempts against generation access
+- destructive operations against non-owned generation IDs
+- fake JWT-style authentication material
+- spoofed account headers
+- oversized authorization material
+- IP spoofing attempts through forwarding headers
+
+### Expected failure mode
+
+A vulnerable system might accept a forged or malformed credential,
+trust a caller-supplied account header, allow a regional API key in
+the wrong region, or expose another account's generation data by ID.
+
+### Public result
+
+<CAT1_PUBLIC_NARRATIVE>
+
+---
+
+## CAT2: Financial and state logic
+
+### Objective
+
+Validate that hostile concurrency and malformed pricing inputs
+cannot corrupt BabySea's generation state or credit ledger.
+
+This is the highest-priority category because BabySea manages async
+workloads with credit reservation and settlement.
+
+### Public attack themes
+
+CAT2 tested:
+
+- concurrent generation pressure
+- TOCTOU-style credit race attempts
+- heavier burst generation attempts
+- concurrent cancel / refund attempts
+- spoofed generation IDs
+- cross-account cancel attempts
+- negative, zero, or oversized pricing inputs
+- estimate-versus-generate mismatch attempts
+- delete-then-cancel sequencing
+- concurrent estimate and generation behavior
+- invalid duration and resolution boundaries
+
+### Expected failure mode
+
+A vulnerable system might allow more generations than the available
+balance supports, double-refund a single generation, charge the
+wrong account, refund a nonexistent generation, or calculate
+negative / zero cost for a billable workload.
+
+### Public result
+
+<CAT2_PUBLIC_NARRATIVE>
+
+The most important result is credit-ledger integrity:
+
+| Region | Reserves | Charges | Result |
+| --- | ---: | ---: | --- |
+| <REGION_1> | <R1_RESERVES> | <R1_CHARGES> | <R1_LEDGER_RESULT> |
+| <REGION_2> | <R2_RESERVES> | <R2_CHARGES> | <R2_LEDGER_RESULT> |
+| <REGION_3> | <R3_RESERVES> | <R3_CHARGES> | <R3_LEDGER_RESULT> |
+
+### Public conclusion
+
+The tested financial invariant held:
+
+```text
+successful generation -> exactly one reserve -> exactly one charge
+```
+
+For BabySea, this is the most important assessment outcome.
+
+---
+
+## CAT3: Input validation and injection
+
+### Objective
+
+Validate that malformed or hostile request bodies cannot bypass
+validation, corrupt storage, reach unsafe provider execution paths,
+or produce unsafe state transitions.
+
+### Public attack themes
+
+CAT3 tested:
+
+- SQL injection probes
+- NoSQL injection probes
+- stored XSS probes
+- server-side template injection probes
+- command injection probes
+- oversized text fields
+- deeply nested JSON
+- large numbers of unexpected keys
+- null-byte and Unicode edge cases
+- duplicate JSON key ambiguity
+- content-type confusion
+- empty or non-object bodies
+- prototype pollution attempts
+- schema type confusion
+- model path traversal attempts
+- invalid provider names
+- oversized provider-order lists
+- audit-log visual spoofing
+- large-body boundary checks
+- downstream logging exploit probes
+
+### Expected failure mode
+
+A vulnerable system might coerce invalid types, pass untrusted
+fields into provider execution, process non-JSON bodies unexpectedly,
+store unsafe data without sanitization, or crash during validation.
+
+### Public result
+
+<CAT3_PUBLIC_NARRATIVE>
+
+---
+
+## CAT4: Edge and protocol abuse
+
+### Objective
+
+Validate that HTTP protocol ambiguity and method tampering cannot
+confuse the edge or origin into processing unintended requests.
+
+### Public attack themes
+
+CAT4 tested:
+
+- request-smuggling patterns
+- conflicting request length semantics
+- unsupported methods on restricted routes
+- method override headers
+- TRACE-style probing
+- host and forwarded-host manipulation
+- CORS and OPTIONS enumeration behavior
+- HTTP protocol downgrade behavior
+- encoded path traversal attempts
+- HEAD probing on authenticated routes
+
+### Expected failure mode
+
+A vulnerable system might process a smuggled request, trust an
+attacker-controlled Host header, expose unsafe methods, route
+encoded traversal paths incorrectly, or leak sensitive metadata
+through unexpected protocol handling.
+
+### Public result
+
+<CAT4_PUBLIC_NARRATIVE>
+
+---
+
+## CAT5: SSRF and file access
+
+### Objective
+
+Validate that user-supplied media inputs cannot be used to probe
+internal services, metadata endpoints, local files, private
+networks, or storage paths.
+
+This is critical for generative-media systems because image and
+video workflows often accept remote input URLs.
+
+### Public attack themes
+
+CAT5 tested:
+
+- localhost and loopback probes
+- cloud metadata endpoint probes
+- private network address probes
+- non-HTTP protocol probes
+- URL parser confusion
+- redirect-chain SSRF attempts
+- generation ID path traversal attempts
+- predictable object-access attempts
+- cross-account object-access attempts
+
+### Expected failure mode
+
+A vulnerable system might fetch internal URLs during file
+validation, follow redirects into private networks, expose metadata
+credentials, read local files, or return non-owned generation
+assets.
+
+### Public result
+
+<CAT5_PUBLIC_NARRATIVE>
+
+---
+
+## CAT6: Webhook and infrastructure abuse
+
+### Objective
+
+Validate that forged provider callbacks, replay attempts,
+infrastructure probes, and concurrent route pressure cannot create
+false state transitions or exhaust critical infrastructure paths.
+
+In BabySea, webhooks are part of the async execution state machine.
+A forged webhook is not merely a fake notification. It could become
+a false completion, false failure, false refund, or corrupted
+generation record if not handled correctly.
+
+### Public attack themes
+
+CAT6 tested:
+
+- forged provider webhook callbacks
+- missing or empty webhook signatures
+- stale and future timestamp behavior
+- oversized webhook body handling
+- cron endpoint probing
+- unauthenticated infrastructure route probing
+- information disclosure checks
+- burst rate-limit behavior
+- rate-limit scope validation
+- webhook injection probes
+- DLQ stress behavior
+- concurrent multi-route pressure
+
+### Expected failure mode
+
+A vulnerable system might accept a forged provider completion,
+process a replayed webhook, expose sensitive version or environment
+data, allow unauthenticated cron execution, or fail under concurrent
+route pressure.
+
+### Public result
+
+<CAT6_PUBLIC_NARRATIVE>
+
+---
+
+## Credit-ledger integrity validation
+
+The credit ledger is the most important validation target.
+
+BabySea's execution model depends on credit reservation and
+settlement. Under adversarial traffic, the ledger must remain
+correct even when requests are concurrent, malformed, retried,
+canceled, or rate-limited.
+
+### Public ledger summary
+
+| Region | Test generations | Reserve entries | Charge entries | Ledger result |
+| --- | ---: | ---: | ---: | --- |
+| <REGION_1> | <R1_GENS> | <R1_RESERVES> | <R1_CHARGES> | <R1_LEDGER_RESULT> |
+| <REGION_2> | <R2_GENS> | <R2_RESERVES> | <R2_CHARGES> | <R2_LEDGER_RESULT> |
+| <REGION_3> | <R3_GENS> | <R3_RESERVES> | <R3_CHARGES> | <R3_LEDGER_RESULT> |
+
+### Integrity checks
+
+| Check | Result |
+| --- | --- |
+| Every successful generation had a reserve entry | <CHECK_RESERVE> |
+| Every successful generation had a charge entry | <CHECK_CHARGE> |
+| No orphaned reserves observed | <CHECK_ORPHAN> |
+| No double charges observed | <CHECK_DOUBLE> |
+| No refund without valid prior state observed | <CHECK_REFUND> |
+| Ledger balance matched expected charge totals | <CHECK_BALANCE> |
+| Account, API key, and generation ownership remained linked | <CHECK_OWNERSHIP> |
+
+### Public conclusion
+
+```text
+hostile concurrency + async execution + billing state -> ledger remains balanced
+```
+
+---
+
+## API log and artifact consistency
+
+The assessment cross-checks public API behavior against
+authenticated request logs, credit ledger rows, and generated asset
+records.
+
+Operational row identifiers are anonymized in this public version.
+
+| Region | Authenticated API log rows | Credit-ledger rows | Generated asset records |
+| --- | ---: | ---: | ---: |
+| <REGION_1> | <R1_LOGS> | <R1_LEDGER_ROWS> | <R1_ASSETS> |
+| <REGION_2> | <R2_LOGS> | <R2_LEDGER_ROWS> | <R2_ASSETS> |
+| <REGION_3> | <R3_LOGS> | <R3_LEDGER_ROWS> | <R3_ASSETS> |
+
+Only authenticated requests with resolved account and API key
+context are expected to appear in API usage logs. Requests rejected
+before authentication, blocked before application processing, or
+rejected by method / routing behavior are not expected to produce
+authenticated API-key log rows.
+
+This matched the expected logging model.
+
+---
+
+## Cross-region consistency
+
+The assessment intentionally repeated the same methodology across
+<REGIONS>.
+
+This was necessary because multi-region systems can drift in subtle
+ways:
+
+- different environment variables
+- different database schema state
+- different edge behavior
+- different rate-limit timing
+- different region-specific provider behavior
+- different secrets or webhook configuration
+- different route deployment state
+
+### Public finding
+
+<CROSS_REGION_FINDING: describe at policy / invariant level only.
+Do NOT publish exact timing windows, provider failover order, or
+which region won which race. Generic acceptable language: "A small
+number of timing-dependent differences were observed during
+concurrency and rate-limit tests. They did not create security gaps
+and did not affect credit integrity.">
+
+### Public conclusion
+
+The regions behaved consistently at the policy and invariant level.
+Identity, tenancy, validation, and credit-ledger invariants held.
+
+---
+
+## Edge-security configuration note
+
+<EDGE_SECURITY_NOTE: optional. Use only if the assessment surfaced
+a defense-in-depth follow-up. Generic acceptable language:
+
+"After the initial assessment, BabySea reviewed its edge-security
+configuration and tuned controls that were not fully enforcing as
+intended at the time of the test. This did not invalidate the
+application-layer results, including application authentication, validation,
+rate limiting, and credit-ledger invariants already carried the core
+security properties. Edge controls are treated as defense-in-depth
+and were hardened after review."
+
+The public lesson:
+
+> Edge controls should reduce risk and block hostile traffic
+> earlier. They should not be the only layer protecting application
+> state.>
+
+---
+
+## Controls validated
+
+The assessment validated the following public control areas.
+
+| Control area | Public validation result |
+| --- | --- |
+| API authentication | Missing, malformed, invalid, and region-mismatched credentials rejected |
+| Account isolation | Non-owned generation access paths did not expose records |
+| Regional isolation | Cross-region key replay attempts rejected |
+| Request validation | Malformed JSON, invalid types, unsafe body shapes, and schema bypass attempts handled safely |
+| Rate limiting | Burst and concurrency pressure did not create unsafe state |
+| Credit settlement | Successful generations produced matched reserve and charge entries |
+| Refund logic | Tested refund / cancel races did not create invalid refunds |
+| SSRF protection | Tested internal-network and file-access probes blocked or safely handled |
+| Webhook trust boundary | Forged provider callbacks did not create unsafe state transitions |
+| Protocol handling | Tested request-smuggling and method-abuse patterns did not create unsafe application behavior |
+| Observability | Authenticated requests correlated with expected log records |
+| Multi-region parity | <REGIONS> preserved equivalent security invariants |
+
+---
+
+## SOC 2 / ISO-style evidence mapping
+
+This section is provided as an orientation aid for security
+reviewers. It is **not** a formal SOC 2 or ISO 27001 attestation.
+
+| Evidence area | Assessment evidence |
+| --- | --- |
+| Logical access controls (CC6.1 / A.9) | Authentication, API key validation, account scoping, cross-region replay rejection |
+| Change and release readiness (CC8.1 / A.14) | Authorized assessment with documented scope and results before launch / release |
+| Security monitoring (CC7.2 / A.12.4) | Request logs, credit-ledger review, asset-record review, structured results output |
+| Vulnerability management (CC7.1 / A.12.6) | White-box attack methodology focused on auth, tenancy, billing, SSRF, injection, webhooks, and protocol abuse |
+| Data isolation (CC6.7 / A.13) | Regional testing across <REGIONS>; account ownership checks; non-owned object access attempts rejected |
+| Secure application design (CC7.4 / A.14.2) | Strict validation, scoped ownership checks, rate limits, idempotent state handling, credit-ledger invariants |
+| Incident preparedness (CC7.3 / A.16) | Assessment produced actionable hardening notes, including edge-security review and configuration follow-up |
+
+---
+
+## Public remediation and follow-up
+
+<FINDINGS_SUMMARY: e.g. "No critical, high, medium, or low findings
+were identified within the tested scope.">
+
+The assessment still produced follow-up hardening items.
+
+| Priority | Item | Public status |
+| --- | --- | --- |
+| P1 | <P1_ITEM> | <P1_STATUS> |
+| P2 | <P2_ITEM> | <P2_STATUS> |
+| P3 | <P3_ITEM> | <P3_STATUS> |
+
+The goal of follow-up work is to strengthen defense-in-depth and
+keep public reporting safe, not to disclose discovered application
+exploits.
+
+---
+
+## Public limitations
+
+This report is intentionally scoped.
+
+It does not claim that BabySea is perfectly secure. No serious
+security report should make that claim.
+
+The assessment means:
+
+- the tested attack suite did not produce unexpected findings
+- the tested regions preserved the expected invariants
+- the tested credit-ledger behavior remained balanced
+- the tested SSRF, auth, injection, protocol, and webhook paths
+  were blocked or safely handled
+- the tested application-layer controls did not depend solely on
+  edge filtering
+
+The report does not mean:
+
+- every possible vulnerability class was tested
+- every future code change inherits this result
+- every provider-side behavior is under BabySea's control
+- every possible edge-case payload is impossible
+- this public report replaces independent third-party security
+  review
+
+BabySea will continue to test the execution layer as the product
+surface expands.
+
+---
+
+## Final public conclusion
+
+Within the tested scope, BabySea's execution layer handled the
+<TOTAL_ATTEMPTS>-attempt assessment without unexpected findings.
+
+The most important result was not the absence of a single exploit.
+The most important result was that the core invariants held under
+adversarial pressure:
+
+- identity remained tied to verified API keys
+- account boundaries remained enforced
+- regional key replay failed
+- malformed inputs did not reach unsafe execution state
+- forged webhooks did not create false state transitions
+- SSRF attempts did not expose internal resources
+- protocol-abuse attempts did not create unsafe request handling
+- credit settlement remained balanced
+
+BabySea's security model is layered.
+
+The edge is the shield.
+
+The invariants are the fortress.
+
+---
+
+## Responsible disclosure
+
+If you believe you have discovered a security issue affecting
+BabySea, please report it through one of the following channels:
+
+- Email: [security@babysea.ai](mailto:security@babysea.ai)
+- Machine-readable contact: [/.well-known/security.txt](https://babysea.ai/.well-known/security.txt)
+- Encryption: [PGP key](https://babysea.ai/.well-known/pgp-key.txt)
+- Acknowledgments: [Hall of fame](https://babysea.ai/acknowledgments)
+
+BabySea acknowledges reports within 48 hours and coordinates a fix
+under its published disclosure policy. Please do not include exploit
+material, payloads, or proof-of-concept code in public channels.
+
+This public report does not create an obligation, warranty, or
+attestation. It is provided as a transparency artifact summarizing
+one authorized assessment within a defined scope and time window.
+
+---
+
+## Document control
+
+| Field | Value |
+| --- | --- |
+| Document version | <DOC_VERSION: e.g. 1.0> |
+| Publication date | <PUBLICATION_DATE> |
+| Internal owner | <INTERNAL_OWNER_ROLE: e.g. "BabySea Security"> |
+| Sanitization review | Completed. No secrets, identifiers, or reusable exploit material. |
+| Sign-off | Internal security + comms / legal sign-off prior to publication |
+| Next planned assessment | <NEXT_ASSESSMENT_WINDOW> |
+| Security contact | [security@babysea.ai](mailto:security@babysea.ai) |
+
