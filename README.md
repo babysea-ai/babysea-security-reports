@@ -190,7 +190,7 @@ This repository contains two kinds of material, each licensed separately.
 
 ### Documentation and reports
 
-Unless otherwise stated, all written content in this repository, including reports under `reports/`, templates under `templates/`, and this README is licensed under the [Creative Commons Attribution 4.0 International License (`CC BY 4.0`)](https://creativecommons.org/licenses/by/4.0/).
+Unless otherwise stated, published security reports under `reports/` and this README are licensed under the [Creative Commons Attribution 4.0 International License (`CC BY 4.0`)](https://creativecommons.org/licenses/by/4.0/). Helper templates, scaffolds, and example structures are covered separately under [`Apache-2.0`](#templates-and-helpers).
 
 You are free to:
 

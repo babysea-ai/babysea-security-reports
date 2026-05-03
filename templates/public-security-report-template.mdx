@@ -20,7 +20,7 @@ PUBLIC SECURITY REPORT - TEMPLATE
 
 Purpose
 -------
-This template produces a SOC 2 / ISO 27001-style public security
+This template produces a SOC 2/ISO 27001-style public security
 report that is safe to publish to customers, partners, and security
 reviewers. It is intentionally sanitized: it summarizes outcomes,
 controls, and invariants; never reusable exploit material.
@@ -203,7 +203,7 @@ the state systems behind it.
 
 ```text
 Client request
-  -> edge / WAF / API shield
+  -> edge/WAF/API shield
   -> regional API gateway
   -> application authentication and validation
   -> rate limiting and quota enforcement
@@ -261,7 +261,7 @@ Attack attempts were handled by multiple layers.
 | Application authentication | Missing, malformed, invalid, or region-mismatched credentials rejected | <APP_AUTH_COUNT> |
 | Application validation | Invalid payloads, schema violations, or unsafe request shapes rejected | <APP_VALIDATION_COUNT> |
 | Method restrictions | Unsupported route/method combinations rejected | <METHOD_COUNT> |
-| Edge / client / protocol rejection | Oversized, malformed, or protocol-invalid requests rejected before unsafe processing | <EDGE_COUNT> |
+| Edge/client/protocol rejection | Oversized, malformed, or protocol-invalid requests rejected before unsafe processing | <EDGE_COUNT> |
 | **Total directly blocked** |  | **<BLOCKED_COUNT>** |
 
 This distribution matters. The result did not depend on a single
@@ -290,7 +290,7 @@ CAT1 tested:
 - cross-region token replay
 - random keys with valid-looking prefixes
 - credentials supplied through unsafe channels
-- BOLA / IDOR attempts against generation access
+- BOLA/IDOR attempts against generation access
 - destructive operations against non-owned generation IDs
 - fake JWT-style authentication material
 - spoofed account headers
@@ -326,7 +326,7 @@ CAT2 tested:
 - concurrent generation pressure
 - TOCTOU-style credit race attempts
 - heavier burst generation attempts
-- concurrent cancel / refund attempts
+- concurrent cancel/refund attempts
 - spoofed generation IDs
 - cross-account cancel attempts
 - negative, zero, or oversized pricing inputs
@@ -340,7 +340,7 @@ CAT2 tested:
 A vulnerable system might allow more generations than the available
 balance supports, double-refund a single generation, charge the
 wrong account, refund a nonexistent generation, or calculate
-negative / zero cost for a billable workload.
+negative/zero cost for a billable workload.
 
 ### Public result
 
@@ -581,7 +581,7 @@ Operational row identifiers are anonymized in this public version.
 Only authenticated requests with resolved account and API key
 context are expected to appear in API usage logs. Requests rejected
 before authentication, blocked before application processing, or
-rejected by method / routing behavior are not expected to produce
+rejected by method/routing behavior are not expected to produce
 authenticated API-key log rows.
 
 This matched the expected logging model.
@@ -606,7 +606,7 @@ ways:
 
 ### Public finding
 
-<CROSS_REGION_FINDING: describe at policy / invariant level only.
+<CROSS_REGION_FINDING: describe at policy/invariant level only.
 Do NOT publish exact timing windows, provider failover order, or
 which region won which race. Generic acceptable language: "A small
 number of timing-dependent differences were observed during
@@ -653,7 +653,7 @@ The assessment validated the following public control areas.
 | Request validation | Malformed JSON, invalid types, unsafe body shapes, and schema bypass attempts handled safely |
 | Rate limiting | Burst and concurrency pressure did not create unsafe state |
 | Credit settlement | Successful generations produced matched reserve and charge entries |
-| Refund logic | Tested refund / cancel races did not create invalid refunds |
+| Refund logic | Tested refund/cancel races did not create invalid refunds |
 | SSRF protection | Tested internal-network and file-access probes blocked or safely handled |
 | Webhook trust boundary | Forged provider callbacks did not create unsafe state transitions |
 | Protocol handling | Tested request-smuggling and method-abuse patterns did not create unsafe application behavior |
@@ -662,20 +662,20 @@ The assessment validated the following public control areas.
 
 ---
 
-## SOC 2 / ISO-style evidence mapping
+## SOC 2/ISO-style evidence mapping
 
 This section is provided as an orientation aid for security
 reviewers. It is **not** a formal SOC 2 or ISO 27001 attestation.
 
 | Evidence area | Assessment evidence |
 | --- | --- |
-| Logical access controls (CC6.1 / A.9) | Authentication, API key validation, account scoping, cross-region replay rejection |
-| Change and release readiness (CC8.1 / A.14) | Authorized assessment with documented scope and results before launch / release |
-| Security monitoring (CC7.2 / A.12.4) | Request logs, credit-ledger review, asset-record review, structured results output |
-| Vulnerability management (CC7.1 / A.12.6) | White-box attack methodology focused on auth, tenancy, billing, SSRF, injection, webhooks, and protocol abuse |
-| Data isolation (CC6.7 / A.13) | Regional testing across <REGIONS>; account ownership checks; non-owned object access attempts rejected |
-| Secure application design (CC7.4 / A.14.2) | Strict validation, scoped ownership checks, rate limits, idempotent state handling, credit-ledger invariants |
-| Incident preparedness (CC7.3 / A.16) | Assessment produced actionable hardening notes, including edge-security review and configuration follow-up |
+| Logical access controls (CC6.1/A.9) | Authentication, API key validation, account scoping, cross-region replay rejection |
+| Change and release readiness (CC8.1/A.14) | Authorized assessment with documented scope and results before launch/release |
+| Security monitoring (CC7.2/A.12.4) | Request logs, credit-ledger review, asset-record review, structured results output |
+| Vulnerability management (CC7.1/A.12.6) | White-box attack methodology focused on auth, tenancy, billing, SSRF, injection, webhooks, and protocol abuse |
+| Data isolation (CC6.7/A.13) | Regional testing across <REGIONS>; account ownership checks; non-owned object access attempts rejected |
+| Secure application design (CC7.4/A.14.2) | Strict validation, scoped ownership checks, rate limits, idempotent state handling, credit-ledger invariants |
+| Incident preparedness (CC7.3/A.16) | Assessment produced actionable hardening notes, including edge-security review and configuration follow-up |
 
 ---
 
@@ -783,7 +783,7 @@ one authorized assessment within a defined scope and time window.
 | Publication date | <PUBLICATION_DATE> |
 | Internal owner | <INTERNAL_OWNER_ROLE: e.g. "BabySea Security"> |
 | Sanitization review | Completed. No secrets, identifiers, or reusable exploit material. |
-| Sign-off | Internal security + comms / legal sign-off prior to publication |
+| Sign-off | Internal security + comms/legal sign-off prior to publication |
 | Next planned assessment | <NEXT_ASSESSMENT_WINDOW> |
 | Security contact | [security@babysea.ai](mailto:security@babysea.ai) |
 
