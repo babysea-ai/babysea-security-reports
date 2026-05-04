@@ -16,7 +16,7 @@ This repository contains sanitized public security artifacts. It is designed for
 
 Related story:
 
-- [We Ran 300 White-Box Attacks Against BabySea Before Launch](https://babysea.ai/blog/we-ran-300-white-box-attacks-against-babysea-before-launch)
+- [We ran 300 White-Box Attacks against BabySea before launch](https://babysea.ai/blog/we-ran-300-white-box-attacks-against-babysea-before-launch)
 
 ## What is in this repo
 
