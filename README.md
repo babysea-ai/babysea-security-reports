@@ -4,7 +4,7 @@ Public security reports, red-team summaries, and infrastructure hardening notes 
 
 BabySea is the execution control plane for generative media. Because BabySea sits in the execution path for image and video workloads, security is not only about blocking bad requests. It is about preserving the invariants that keep identity, tenancy, credits, webhooks, files, regional boundaries, and execution state correct under pressure.
 
-> The edge is the shield. The invariants are the fortress.
+> The WAF is the shield. The invariants are the fortress.
 
 This repository contains sanitized public security artifacts. It is designed for customers, developers, partners, and security reviewers who want to understand how BabySea tests and documents its production security posture without exposing operational secrets or replayable attack payloads.
 
@@ -190,7 +190,7 @@ This repository contains two kinds of material, each licensed separately.
 
 ### Documentation and reports
 
-Unless otherwise stated, published security reports under `reports/` and this README are licensed under the [Creative Commons Attribution 4.0 International License (`CC BY 4.0`)](https://creativecommons.org/licenses/by/4.0/). Helper templates, scaffolds, and example structures are covered separately under [`Apache-2.0`](#templates-and-helpers).
+Unless otherwise stated, published security reports under `reports/` and this README are licensed under the [Creative Commons Attribution 4.0 International License (`CC BY 4.0`)](https://creativecommons.org/licenses/by/4.0). Helper templates, scaffolds, and example structures are covered separately under [`Apache-2.0`](#templates-and-helpers).
 
 You are free to:
 
